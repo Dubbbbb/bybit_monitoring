@@ -1,0 +1,36 @@
+version: '3.9'
+
+volumes:
+  example-postgres-data:
+
+services:
+  postgresql:
+    container_name: example-postgresql
+    image: postgres:15.1
+    environment:
+      - POSTGRES_USER=example-app
+      - POSTGRES_DB=example-app
+      - POSTGRES_PASSWORD=example-app
+      - POSTGRES_HOST=example-app
+    ports:
+      - 5432:5432
+    volumes:
+      - example-postgres-data:/var/lib/postgresql/data
+    restart: always
+
+  app:
+    container_name: example-app
+    depends_on:
+      - postgresql
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    image: app-image:latest
+    volumes:
+      - ./:/code/
+    ports:
+      - 8080:8080
+    restart: always
+    env_file:
+      - ".env"
+    command: sh -c "python ./app/"
